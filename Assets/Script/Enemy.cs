@@ -9,11 +9,8 @@ public class Enemy : MonoBehaviour
     bool isHit;
     bool isDeth;
     bool isDiscovery;
-    bool isLeft;
 
-    Vector3 killDir;
     public GameObject bloodPrefab;
-    public GameObject bloodPrefab2;
     GameObject blood;
 
     public GameObject player;
@@ -31,21 +28,25 @@ public class Enemy : MonoBehaviour
     GameObject attack;
 
     public Vector2 initialDirection = Vector2.right;
+    Vector2 dir;
+    Vector2 exitDirection;
+
 
     // Start is called before the first frame update
     void Start()
     {
         // 初期方向を設定する
         SetInitialDirection();
+        dir = initialDirection;
     }
 
     void SetInitialDirection()
     {
         // 初期方向をベクトルから角度に変換
-        float angle = Mathf.Atan2(initialDirection.y, initialDirection.x) * Mathf.Rad2Deg;
+        float angle = Mathf.Atan2(initialDirection.y, -initialDirection.x) * Mathf.Rad2Deg;
 
         // オブジェクトを初期方向に回転させる
-        transform.rotation = Quaternion.Euler(new Vector3(0, 0, angle));
+        transform.rotation = Quaternion.Euler(new Vector3(0, angle, 0));
     }
 
     // Update is called once per frame
@@ -88,32 +89,22 @@ public class Enemy : MonoBehaviour
 
         if (isDeth)
         {
+            float angleInRadians = Mathf.Atan2(exitDirection.y, exitDirection.x);
 
-            if (player != null)
-            {
-                if (player.transform.position.x > transform.position.x)
-                {
-                    isLeft = true;
-                }
-                else
-                {
-                    isLeft = false;
-                }
-            }
+            //// ラジアンを度に変換
+            float angleInDegrees = Mathf.Rad2Deg * angleInRadians;
 
-            if (blood == null && !isLeft)
+            if (blood == null)
             {
                 blood = Instantiate(bloodPrefab,
-                    new Vector3(transform.position.x + 1.5f, transform.position.y,
-                    1), Quaternion.identity);
+                    new Vector3(transform.position.x, transform.position.y,
+                    1), Quaternion.Euler(0, 0, angleInDegrees));
             }
-
-            else if (blood == null && isLeft)
+            if (i != null)
             {
-                blood = Instantiate(bloodPrefab2,
-                    new Vector3(transform.position.x - 1.5f, transform.position.y,
-                   1), Quaternion.identity);
+                Destroy(i);
             }
+            Debug.Log(exitDirection);
             Destroy(gameObject);
         }
     }
@@ -124,16 +115,16 @@ public class Enemy : MonoBehaviour
         // 例: Debug.Log("特定のフラグが立ってから数フレーム後に行動しました！");
         if (attack == null)
         {
-            if (isLeft)
+            if (dir.x == 1)
             {
                 attack = Instantiate(attackPrefab,
-                    new Vector3(transform.position.x + 2.25f, transform.position.y, 0),
+                    new Vector3(transform.position.x - 2.25f, transform.position.y, 0),
                                 Quaternion.identity);
             }
             else
             {
                 attack = Instantiate(attackPrefab,
-                    new Vector3(transform.position.x - 2.25f, transform.position.y, 0),
+                    new Vector3(transform.position.x + 2.25f, transform.position.y, 0),
                                 Quaternion.identity);
             }
         }
@@ -146,10 +137,10 @@ public class Enemy : MonoBehaviour
     void DetectTarget()
     {
         // 前方に向かって索敵
-        RaycastHit2D[] hits = Physics2D.RaycastAll(transform.position, transform.right, detectionRange, targetLayer);
+        RaycastHit2D[] hits = Physics2D.RaycastAll(transform.position, dir, detectionRange, targetLayer);
 
         isDiscovery = false;
-
+        Debug.DrawLine(transform.position,transform.position + new Vector3(dir.x,dir.y,0) * detectionRange);
         foreach (RaycastHit2D hit in hits)
         {
             if (hit.collider != null)
@@ -191,6 +182,8 @@ public class Enemy : MonoBehaviour
         {
             if (isHit)
             {
+                // ここで方向を取得する例
+                exitDirection = CalculateExitDirection(collision.transform.position);
                 isDeth = true;
             }
         }
@@ -210,5 +203,10 @@ public class Enemy : MonoBehaviour
         {
             isDiscovery = false;
         }
+    }
+    private Vector2 CalculateExitDirection(Vector2 otherPosition)
+    {
+        // このトリガーオブジェクトから他のオブジェクトへの方向を計算
+        return (otherPosition - (Vector2)transform.position).normalized;
     }
 }

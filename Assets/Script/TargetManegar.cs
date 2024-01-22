@@ -19,7 +19,7 @@ public class TargetManegar : MonoBehaviour
 
         if (nearestEnemy != null)
         {
-            cursorObject.transform.position = new Vector3(nearestEnemy.position.x,nearestEnemy.position.y,-1);
+            cursorObject.transform.position = new Vector3(nearestEnemy.position.x,nearestEnemy.position.y,-3);
             cursorObject.SetActive(true); // 敵がいる場合はカーソルを表示
         }
         else

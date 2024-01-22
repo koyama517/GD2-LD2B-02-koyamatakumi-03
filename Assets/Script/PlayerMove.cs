@@ -28,10 +28,10 @@ public class PlayerMove : MonoBehaviour
 
     private void Update()
     {
-        if (isGrounded)
+        /*if (isGrounded)
         {
             rb.velocity = new Vector2(rb.velocity.x, 0);
-        }
+        }*/
 
         Attack attack = GetComponent<Attack>();
         if (attack != null)
@@ -41,6 +41,7 @@ public class PlayerMove : MonoBehaviour
 
         if (!isMoving)
         {
+            //rb.velocity = new Vector2(move.x * moveSpeed, rb.velocity.y);
             transform.Translate(move * moveSpeed * Time.deltaTime);
         }
 
@@ -54,15 +55,15 @@ public class PlayerMove : MonoBehaviour
         if (v.x > 0)
         {
             isRight = true;
-            sprite.flipX = false;
+            sprite.flipX = true;
         }
         else if (v.x < 0)
         {
             isRight = false;
-            sprite.flipX = true;
+            sprite.flipX = false;
         }
 
-        move = new Vector2(v.x, 0);
+        move = new Vector2(v.x, 0).normalized;
     }
 
     public void Jump(InputAction.CallbackContext context)

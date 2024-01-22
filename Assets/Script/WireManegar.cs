@@ -4,29 +4,47 @@ using UnityEngine;
 
 public class WireManegar : MonoBehaviour
 {
-    public Transform object1;
-    Transform object2;
+    public Transform[] points; // 線を結ぶポイントのTransform配列
+
     private LineRenderer lineRenderer;
 
     void Start()
     {
+        // LineRendererコンポーネントを取得または追加
         lineRenderer = GetComponent<LineRenderer>();
-        lineRenderer.positionCount = 2;
+        if (lineRenderer == null)
+        {
+            lineRenderer = gameObject.AddComponent<LineRenderer>();
+        }
+
+        // 線の幅や材質などの設定
+        lineRenderer.startWidth = 0.1f;
+        lineRenderer.endWidth = 0.1f;
+        lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
+        lineRenderer.startColor = Color.red;
+        lineRenderer.endColor = Color.blue;
+
+        // 最初に線を描画
+        DrawLine();
     }
 
     void Update()
     {
-        GameObject obj = GameObject.FindGameObjectWithTag("Attack2");
-        if (obj != null)
-        {
-            object2 = obj.GetComponent<Transform>();
+        // オブジェクトが移動した場合など、線を再描画
+        DrawLine();
+    }
 
-            if (object2 != null)
-            {
-                // オブジェクトの位置を取得して線を更新
-                lineRenderer.SetPosition(0, object1.position);
-                lineRenderer.SetPosition(1, object2.position);
-            }
+    void DrawLine()
+    {
+        // 線のポイントを更新
+        List<Vector3> linePoints = new List<Vector3>();
+        foreach (Transform point in points)
+        {
+            linePoints.Add(point.position);
         }
+
+        // LineRendererにポイントを設定して描画
+        lineRenderer.positionCount = linePoints.Count;
+        lineRenderer.SetPositions(linePoints.ToArray());
     }
 }

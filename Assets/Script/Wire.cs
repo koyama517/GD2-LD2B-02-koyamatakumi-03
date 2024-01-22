@@ -39,6 +39,7 @@ public class Wire : MonoBehaviour
             float dis = Vector3.Distance(transform.position, start.position);
             if (dis > 5)
             {
+                Debug.Log(dis);
                 isReturn = true;
             }
 
@@ -63,7 +64,7 @@ public class Wire : MonoBehaviour
         {
             isReturn = true;
         }
-        else
+        else if(collision.gameObject.tag == "Player")
         {
             if (isReturn)
             {
